@@ -1,24 +1,22 @@
-function mse = test(layers, training_iters)
-    source_network = MLP(layers, 0.125 / 2);
-    target_network = MLP(layers, 0.125 / 2);
-    lr = 0.125;
-    for i = 1:training_iters
-        target_network.lr = lr;
-        input = normrnd(0, 1, [layers(1), 1]);
-        expected = source_network.think(input);
-        target_network.learn(input, expected);
-        err = norm(expected - target_network.think(input))^2;
-        lr = err / 8;
-    end
-    source = source_network;
-    target = target_network;
+function mse = test(att_faces_data, training_iters)
+    im = att_faces_data{1}{1};
+    [rows, cols] = size(im);
+    data_dim = im(:);
 
-    mse = 0;
-    for i = 1:10000
-        input = normrnd(0, 1, [layers(1), 1]);
-        expected = source_network.think(input);
-        got = target_network.think(input);
-        mse = mse + norm(expected - got)^2;
+    layers = [rows * cols, rows * cols / 2, rows * cols / 4, rows * cols / 2, rows * cols];
+
+    target_network = MLP(layers, 0.125 / 2);
+    lr = 10;
+
+    for i = 1:training_iters
+        for face_index = 1:10
+            for subject = 1:40
+                input = att_faces_data{subject}{face_index}(:);
+                target_network.learn(input, input);
+                err = norm(input - target_network.think(input));
+                fprintf("Error = %f\n", err);
+                lr = err / 8;
+            end
+        end
     end
-    mse = mse / 10000;
 end
