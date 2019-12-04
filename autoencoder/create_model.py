@@ -4,16 +4,20 @@ import warnings
 import os
 import glob
 warnings.filterwarnings("ignore")
+os.environ['TF_CPP_MIN_LOG_LEVEL']='2'
 
 import numpy as np
 import pandas as pd
 import cv2
 from sklearn.model_selection import train_test_split
 
+import tensorflow as tf
+tf.logging.set_verbosity(tf.logging.ERROR)
+
 from keras.layers import *
 from keras.callbacks import EarlyStopping
 from keras.utils import to_categorical
-from keras.models import Model, Sequential
+from keras.models import Model, Sequential, clone_model
 from keras.metrics import *
 from keras.optimizers import Adam, RMSprop
 from scipy.stats import norm
@@ -24,6 +28,13 @@ from keras import backend as K
 
 from imgaug import augmenters
 import matplotlib.pyplot as plt
+
+from create_arch import create_arch
+
+
+session_config = tf.ConfigProto(gpu_options=tf.GPUOptions(allow_growth=True))
+sess = tf.Session(config=session_config)
+
 
 (x_train, y_train), (x_test, y_test) = datasets.fashion_mnist.load_data()
 
@@ -41,34 +52,13 @@ seq_object = augmenters.Sequential([noise])
 train_x_n = seq_object.augment_images(x_train * 255) / 255
 val_x_n = seq_object.augment_images(x_test * 255) / 255
 
+model, encoder, decoder = create_arch()
 
-
-# input layer
-input_layer = Input(shape=(28, 28, 1))
-
-# encoding architecture
-encoded_layer1 = Conv2D(64, (3, 3), activation='relu', padding='same')(input_layer)
-encoded_layer1 = MaxPool2D( (2, 2), padding='same')(encoded_layer1)
-encoded_layer2 = Conv2D(32, (3, 3), activation='relu', padding='same')(encoded_layer1)
-encoded_layer2 = MaxPool2D( (2, 2), padding='same')(encoded_layer2)
-encoded_layer3 = Conv2D(16, (3, 3), activation='relu', padding='same')(encoded_layer2)
-latent_view    = MaxPool2D( (2, 2), padding='same')(encoded_layer3)
-
-# decoding architecture
-decoded_layer1 = Conv2D(16, (3, 3), activation='relu', padding='same')(latent_view)
-decoded_layer1 = UpSampling2D((2, 2))(decoded_layer1)
-decoded_layer2 = Conv2D(32, (3, 3), activation='relu', padding='same')(decoded_layer1)
-decoded_layer2 = UpSampling2D((2, 2))(decoded_layer2)
-decoded_layer3 = Conv2D(64, (3, 3), activation='relu')(decoded_layer2)
-decoded_layer3 = UpSampling2D((2, 2))(decoded_layer3)
-output_layer   = Conv2D(1, (3, 3), padding='same')(decoded_layer3)
-
-# compile the model
-model = Model(input_layer, output_layer)
-model.compile(optimizer='adam', loss='mse')
 model.summary()
 
+batch_size = 2048
 
-early_stopping = EarlyStopping(monitor='val_loss', min_delta=0, patience=10, verbose=5, mode='auto')
-history = model.fit(train_x_n, x_train, epochs=20, batch_size=2048, validation_data=(val_x_n, x_test), callbacks=[early_stopping])
+# Train autoencoder
+model.fit(x=x_train, y=None, shuffle=True, epochs=20, batch_size=batch_size, validation_data=(x_test, None))
 
+model.save_weights('autoencoder.h5')
