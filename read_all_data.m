@@ -4,7 +4,8 @@ function data = read_all_data(path)
     for i = 1:40
         data{i} = {};
         for j = 1:10
-            impath = sprintf("%s/s%d/%d.pgm\n", path, i, j);
+            impath = sprintf('%s/s%d/%d.pgm', path, i, j);
+            class(impath) 
             im = double(imread(impath));
             im = im ./ 255.0;
             im = im - 0.5;
