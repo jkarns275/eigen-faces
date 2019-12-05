@@ -4,16 +4,16 @@ function [image,label] = read_hw
 fid = fopen('train-images-idx3-ubyte','r');
 fid2 = fopen('train-labels-idx1-ubyte','r');
 % 
-% mn = fread(fid,4,'uint8');
-% 
-% ni = fread(fid,4,'uint8');
-% 
-% nr = fread(fid,4,'uint8');
-% 
-% nc = fread(fid,4,'uint8');
-% 
-% mn2 = fread(fid2,4,'uint8');
-% ni2 = fread(fid2,4,'uint8');
+mn = fread(fid,4,'uint8');
+
+ni = fread(fid,4,'uint8');
+
+nr = fread(fid,4,'uint8');
+
+nc = fread(fid,4,'uint8');
+
+mn2 = fread(fid2,4,'uint8');
+ni2 = fread(fid2,4,'uint8');
 
 label = fread(fid2,60000,'uint8');
 % 
