@@ -30,15 +30,16 @@ from imgaug import augmenters
 import matplotlib.pyplot as plt
 
 from vae_layer import VAELayer
+import att_faces_util
 
-def create_arch():
+def create_arch(input_shape):
     model = Sequential(name='autoencoder')
     
     batch_size = 16
-    latent_dim = 2  # Number of latent dimension parameters
+    latent_dim = att_faces_util.n_latent_vars()  # Number of latent dimension parameter
     
     # Encoder architecture: Input -> Conv2D*4 -> Flatten -> Dense
-    input_img = Input(shape=(92, 112, 1))
+    input_img = Input(shape=input_shape)
     
     x = Conv2D(32, 3, name='c1',
                       padding='same', 
@@ -79,7 +80,7 @@ def create_arch():
     # decoder takes the latent distribution sample as input
     decoder_input = Input(K.int_shape(z)[1:], name='decoder_input')
     
-    # Expand to 784 total pixels
+    # Expand to original size
     x = Dense(np.prod(shape_before_flattening[1:]), name='d4',
                      activation='relu')(decoder_input)
     

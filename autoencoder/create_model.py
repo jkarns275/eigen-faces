@@ -30,35 +30,50 @@ from imgaug import augmenters
 import matplotlib.pyplot as plt
 
 from create_arch import create_arch
-
+import att_faces_util
 
 session_config = tf.ConfigProto(gpu_options=tf.GPUOptions(allow_growth=True))
 sess = tf.Session(config=session_config)
 
+height, width = att_faces_util.att_faces_dims()
 
-(x_train, y_train), (x_test, y_test) = datasets.fashion_mnist.load_data()
+att_faces = att_faces_util.load_att_faces('att_faces').reshape(400, height, width)
 
-## normalize and reshape
-x_train = x_train/255.
-x_test = x_test/255.
+test_subjects = list(range(10)) # The 10 images from each of these test subjects will be test data
 
-x_train = x_train.reshape(-1, 28, 28, 1)
-x_test = x_test.reshape(-1, 28, 28, 1)
+x_test = np.zeros((10 * len(test_subjects), height, width))
 
-# Lets add sample noise - Salt and Pepper
-noise = augmenters.SaltAndPepper(0.1)
-seq_object = augmenters.Sequential([noise])
+for i, subject in enumerate(test_subjects):
+    for j in range(10):
+        index = subject * 10 + j
+        test_index = i * 10 + j
+        x_test[test_index, :, :] = att_faces[index, :, :]
 
-train_x_n = seq_object.augment_images(x_train * 255) / 255
-val_x_n = seq_object.augment_images(x_test * 255) / 255
+train_subjects = list(set(range(40)) - set(test_subjects))
 
-model, encoder, decoder = create_arch()
+x_train = np.zeros((10 * len(train_subjects), height, width))
+
+for i, subject in enumerate(train_subjects):
+    for j in range(10):
+        index = subject * 10 + j
+        train_index = i * 10 + j
+        x_train[train_index, :, :] = att_faces[index, :, :]
+
+model, encoder, decoder = create_arch((height, width, 1))
 
 model.summary()
 
-batch_size = 2048
+batch_size = 10
+
+print(x_train.shape)
+
+x_train = x_train.reshape(len(train_subjects) * 10, height, width, 1)
+x_test = x_test.reshape(len(test_subjects) * 10, height, width, 1)
 
 # Train autoencoder
-model.fit(x=x_train, y=None, shuffle=True, epochs=20, batch_size=batch_size, validation_data=(x_test, None))
+model.fit(x=x_train, y=None, shuffle=True,
+        epochs=80, 
+        batch_size=batch_size, 
+        validation_data=(x_test, None))
 
 model.save_weights('autoencoder.h5')
