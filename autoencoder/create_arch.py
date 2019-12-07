@@ -104,7 +104,7 @@ def create_arch(input_shape):
     
     vae = VAELayer()([input_img, z_decoded, z_mu, z_log_sigma])
     model = Model(input_img, vae)
-    model.compile(optimizer='rmsprop', loss=None)
+    model.compile(optimizer='adam', loss=None)
     model.summary()
     
     encoder.summary()

@@ -31,4 +31,4 @@ def att_faces_dims():
     return (112, 92)
 
 def n_latent_vars():
-    return 3
+    return 10
