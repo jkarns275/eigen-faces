@@ -51,7 +51,7 @@ fig, ax = plt.subplots()
 latent_figure = np.zeros((height, width))
 
 n_latent_vars = att_faces_util.n_latent_vars()
-latent_axes = list(map(lambda i: plt.axes([0.25, 0.1 + 0.025 * i, 0.65, 0.03], facecolor='lightgoldenrodyellow'), range(n_latent_vars)))
+latent_axes = list(map(lambda i: plt.axes([0.25, 0.0125 * i, 0.65, 0.03], facecolor='lightgoldenrodyellow'), range(n_latent_vars)))
 sliders = list(map(lambda i: Slider(latent_axes[i], f"latent {i}", -3, 3, valinit=0, valstep=0.01), range(n_latent_vars)))
 
 def update(value):

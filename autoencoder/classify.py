@@ -92,7 +92,7 @@ def create_cmodel():
         labels_train[train_start:train_end, :] = labels[10 * i + n_test:10 * i + 10, :]
 
     classifier.fit(x=x_train, y=labels_train, shuffle=True,
-                    epochs=250,
+                    epochs=120,
                     batch_size=16,
                     validation_data=(x_test, labels_test))
     predictions = classifier.predict(encoded_faces)
