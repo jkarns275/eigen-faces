@@ -18,6 +18,15 @@ function [train, test, train_label, test_label]=read_flower(path)
         img=reshape(img,112*92,1);
         test=horzcat(test,img);
     end
+    figure()
+    for i=1:4
+        subplot(2,4,i+4);
+        imshow(reshape(train(:,i),112,92));
+        ipath=sprintf('%s/%d.jpg',path,i);
+        img=imread(ipath);
+        subplot(2,4,i);
+        imshow(img)
+    end
     train=double(train);
     test=double(test);
 
