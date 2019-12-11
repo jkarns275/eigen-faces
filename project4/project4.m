@@ -7,7 +7,8 @@ function project4
     k_variance=zeros(2,4);
     t=zeros(2,4);
     avg_d=zeros(2,4);
-
+    face1=[];
+    face2=[];
     for i=1:4
         [eigenfaces_1,k_1,construct_1,~,t_1]=dimention_reduction(data_400,@pca_svd,0,th(i),1);
         [eigenfaces_2,k_2,construct_2,~,t_2]=dimention_reduction(data_400,@pca_eigen,0,th(i),1);
