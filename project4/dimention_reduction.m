@@ -4,7 +4,7 @@ function [eigenfaces,k_1,construct,y,t]=dimention_reduction(input,pca_method,k,t
     [v, eigenvector]=pca_method(input);
     t=toc;
 %     t=t2-t1;
-    k_1 = variance(v,th,0);
+    k_1 = variance(v,th,1);
     %% SVD: eigen faces
     if self==1
         PC= eigenvector(:, 1:k_1);
