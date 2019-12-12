@@ -4,10 +4,11 @@ function [variances, eigenvector]=pca_svd(images)
     [m,n]=size(images);
 
     sub_avg = images-repmat(avg,1,n);
-%     Y = sub_avg / sqrt(n-1);
+    Y = sub_avg / sqrt(n-1);
+%     Y = (1/sqrt(n-1))* sub_avg;
 % %     Y = sub_avg' / sqrt(n-1);
 %     [~,s,eigenvector] = svd(Y);
-    [eigenvector,s,~] = svd(sub_avg);
+    [eigenvector,s,~] = svd(Y);
     s_diag=diag(s);
     variances = s_diag.^2;
 %     p = variance(sig2,th);
